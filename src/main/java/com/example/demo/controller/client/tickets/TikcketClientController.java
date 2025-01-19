@@ -29,10 +29,27 @@ public class TikcketClientController {
     }
 
     @PostMapping("tickets/buy-ticket")
-    public String buyTicket(@RequestParam("ticketId") Integer ticketId, @AuthenticationPrincipal User user, Model model){
+    public String buyTicket(@RequestParam("price") Integer ticketPrice, @RequestParam("ticketId") String status, @RequestParam("ticketId") Integer ticketId, @AuthenticationPrincipal User user, Model model){
         AppUser client = userService.getUserByUsername(user.getUsername());
-        System.out.println(ticketId);
-        System.out.println("wvrweverver");
+        if (ticketPrice > userService.getUserByUsername(user.getUsername()).getBalance()){
+            System.out.println("qecwecwec");
+            model.addAttribute("error","не хватает баланса");
+            model.addAttribute("balance", userService.getUserByUsername(user.getUsername()).getBalance());
+            model.addAttribute("ticketList", ticketService.getActiveTicketsByUsername(client.getUsername()));
+            return "client/ticket/ticket_list";
+        }
+        System.out.println("wecwecwe");
+        ticketService.buyBookedTicket(ticketId, user.getUsername());
+        model.addAttribute("balance", userService.getUserByUsername(user.getUsername()).getBalance());
+        model.addAttribute("ticketList", ticketService.getActiveTicketsByUsername(client.getUsername()));
+        return "client/ticket/ticket_list";
+    }
+
+
+    @PostMapping("tickets/cancel")
+    public String buyBookedTicket(@RequestParam("ticketId") Integer ticketId, @AuthenticationPrincipal User user, Model model){
+        AppUser client = userService.getUserByUsername(user.getUsername());
+        ticketService.cancelTicket(ticketId, user.getUsername());
         model.addAttribute("ticketList", ticketService.getActiveTicketsByUsername(client.getUsername()));
         return "client/ticket/ticket_list";
     }

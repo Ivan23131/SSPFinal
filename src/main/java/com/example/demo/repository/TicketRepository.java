@@ -13,6 +13,8 @@ import java.util.Optional;
 
 public interface TicketRepository extends CrudRepository<Ticket, Integer> {
 
+    Ticket findById(int id);
+
     Iterable<Ticket> findTicketsByEventId(Integer eventId);
 
     Optional<Ticket> findByEventIdAndRowAndPlace(Integer eventId, Integer row, Integer place);

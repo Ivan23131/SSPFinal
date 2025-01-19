@@ -30,6 +30,28 @@ public class TicketService {
         return StreamSupport.stream(ticketRepository.findTicketsByEventId(eventId).spliterator(), false).toList();
     }
 
+    public void cancelTicket(Integer ticketId, String username){
+        Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new RuntimeException("нет такого билета по данному id"));
+        if (ticket.getStatus().equals("продан")){
+            AppUser client = appUserRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("нет такого юзера с такм по id функция удаления билета"));
+            client.setBalance(client.getBalance() + ticket.getPrice());
+            appUserRepository.save(client);
+        }
+        ticket.setClient(null);
+        ticket.setStatus("продается");
+        ticketRepository.save(ticket);
+    }
+
+
+    public void buyBookedTicket(Integer ticketId, String username){
+        Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new RuntimeException("нет такого билета по данному id"));
+        AppUser client = appUserRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("нет такого юзера с такм по id функция удаления билета"));
+        client.setBalance(client.getBalance() - ticket.getPrice());
+        appUserRepository.save(client);
+        ticket.setStatus("продан");
+        ticketRepository.save(ticket);
+    }
+
     @Transactional
     public Ticket createTicket(Event event, int row, int place, int price) {
         Ticket ticket = new Ticket(null, event, "продается", row, place, price, null);
@@ -47,6 +69,7 @@ public class TicketService {
             ticketRepository.save(ticket1);
         }
     }
+
 
 
     @Transactional
