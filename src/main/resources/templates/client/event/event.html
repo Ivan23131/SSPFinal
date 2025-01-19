@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <title> &ndash; Сельмаг</title>
+  <style>
+    .status-sold-or-booked {
+background-color: black; /* Черный цвет */
+color: white; /* Белый текст для контраста */
+cursor: not-allowed; /* Курсор "недоступно" */
+pointer-events: none; /* Отключаем клики */
+}
+.ticket {
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    border: 1px solid #ccc;
+    cursor: pointer; /* Добавляем курсор-указатель */
+}
+.status-selling {
+    background-color: red;
+    color: white;
+}
+.status-booked {
+    background-color: yellow;
+    color: black;
+}
+.status-sold {
+    background-color: green;
+    color: white;
+}
+.ticket:not(.status-selling):not(.status-booked):not(.status-sold) {
+    cursor: not-allowed; /* Курсор "недоступно" для бесцветных билетов */
+    pointer-events: none; /* Отключаем клики */
+}
+  </style>
+  <script th:inline="javascript">
+    let totalPrice = 0; // Переменная для хранения общей цены
+    function updateTotalPrice(priceChange) {
+      totalPrice += priceChange; // Изменяем общую цену
+      document.getElementById('total-price').textContent = totalPrice; // Обновляем отображение
+    }
+    // Вставляем eventId в JavaScript
+    const eventId = /*[[${eventId}]]*/ 0; // Thymeleaf вставляет значение eventId
+
+    // Функция для обработки клика на место
+function handleTicketClick(event) {
+    const ticket = event.target.closest('.ticket'); // Находим ближайший элемент с классом .ticket
+    ticketPrice = parseInt(ticket.getAttribute('data-price'), 10);
+    if (!ticket) return; // Если элемент не найден, прекращаем выполнение
+     // Получаем цену билета
+    if (isNaN(ticketPrice)) {
+        console.error('Цена билета не определена:', ticket);
+        return; // Прекращаем выполнение функции, если цена не определена
+    }
+
+    if (ticket.classList.contains('status-selling')) {
+        ticket.classList.remove('status-selling');
+        ticket.classList.add('status-booked');
+    } else if (ticket.classList.contains('status-booked')) {
+        ticket.classList.remove('status-booked');
+        ticket.classList.add('status-sold');
+        updateTotalPrice(ticketPrice); // Увеличиваем общую цену
+    } else if (ticket.classList.contains('status-sold')) {
+        ticket.classList.remove('status-sold');
+        ticket.classList.add('status-selling');
+        updateTotalPrice(-ticketPrice); // Уменьшаем общую цену
+    } else {
+        console.warn('Неизвестный статус билета:', ticket);
+    }
+}
+
+    // Добавляем обработчик клика на все места после загрузки страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        const tickets = document.querySelectorAll('.ticket');
+        tickets.forEach(ticket => {
+            ticket.addEventListener('click', handleTicketClick);
+        });
+    });
+
+    // Функция для отправки данных на сервер
+    function submitForm() {
+        // Собираем выбранные места
+        const selectedSeats = getSelectedSeats();
+
+        // Проверяем, есть ли выбранные места
+        if (selectedSeats.length === 0) {
+            alert("Пожалуйста, выберите хотя бы одно место.");
+            return;
+        }
+
+        // Создаем объект FormData
+        const formData = new FormData();
+
+        // Добавляем выбранные места в FormData
+        selectedSeats.forEach((seat, index) => {
+            formData.append(`seats[${index}]`, seat);
+        });
+
+        // Преобразуем FormData в строку application/x-www-form-urlencoded
+        const params = new URLSearchParams(formData);
+        // Отправляем POST-запрос
+        const payload = {
+          selectedSeats: selectedSeats, // Массив выбранных мест
+          totalPrice: totalPrice
+        };
+        fetch(`http://localhost:8081/client/events/${eventId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+           if (response.ok) {
+               // Если запрос успешный, перенаправляем пользователя
+               window.location.href = 'http://localhost:8081/user/start';
+           } else if (response.status === 400) {
+               // Если есть ошибки, обрабатываем их
+               return response.json().then(data => {
+                   displayErrors(data.errors); // Отображаем ошибки на странице
+               });
+           }
+        })
+        .catch(error => {
+            console.error("Ошибка при отправке запроса:", error);
+        });
+    }
+
+    // Функция для получения выбранных мест
+function getSelectedSeats() {
+    const selectedSeats = [];
+    const tickets = document.querySelectorAll('.ticket.status-booked, .ticket.status-sold');
+
+    tickets.forEach(ticket => {
+        if (ticket.classList.contains('status-booked') || ticket.classList.contains('status-sold')) {
+            // Определяем статус билета
+            const status = ticket.classList.contains('status-booked') ? 'забронирован' : 'продан';
+
+            // Добавляем объект с id и статусом в массив
+            selectedSeats.push({
+                id: ticket.id,
+                status: status
+            });
+        }
+    });
+
+    return selectedSeats;
+}
+
+function displayErrors(errors) {
+   const errorContainer = document.getElementById('error-container');
+   errorContainer.innerHTML = ''; // Очищаем контейнер
+   errors.forEach(error => {
+       const errorElement = document.createElement('div');
+       errorElement.textContent = error;
+       errorElement.style.color = 'red'; // Красный цвет для ошибок
+       errorContainer.appendChild(errorElement);
+   });
+}
+  </script>
+  <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+<div th:insert="~{fragments/logout_fragments::header}"></div>
+<h1 data-th-text="${event.title}"></h1>
+<ul>
+  <li><strong>ID</strong>: <span data-th-text="${event.id}"></span></li>
+  <li><strong>Название</strong>: <span data-th-text="${event.title}"></span></li>
+  <li><strong>Место</strong>: <span data-th-text="${event.place}"></span></li>
+  <li><strong>Время</strong>: <span data-th-text="${#temporals.format(event.dateTime, 'dd.MM.yyyy HH:mm')}"></span></li>
+  <li><strong>Тип</strong>: <span data-th-text="${event.type}"></span></li>
+</ul>
+<div id="error-container">
+  <!-- Здесь будут отображаться ошибки -->
+</div>
+<table border="1">
+  <thead>
+  <tr>
+    <th>Ряд \ Место</th>
+    <th th:each="place : ${#numbers.sequence(1, 20)}" th:text="${place}"></th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="row : ${#numbers.sequence(1, 20)}">
+    <td th:text="${row}"></td>
+    <td th:each="place : ${#numbers.sequence(1, 20)}">
+      <div th:each="ticket : ${eventTickets}" th:if="${ticket.row == row and ticket.place == place}">
+        <div class="ticket"
+             th:classappend="${ticket.status == 'продается'} ? 'status-selling' :
+                         (${ticket.status == 'забронирован' or ticket.status == 'продан'} ? 'status-sold-or-booked' : '')"
+             th:id="'seat-' + ${row} + '-' + ${place}" th:attr="data-price=${ticket.price}">
+          <span></span>
+        </div>
+      </div>
+    </td>
+  </tr>
+  </tbody>
+</table>
+<div id="total-price-container">
+  <strong>Общая цена:</strong> <span id="total-price">0</span> руб.
+</div>
+<button onclick="submitForm()">Купить</button>
+</body>
+</html>

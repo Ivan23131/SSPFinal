@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Список событий &ndash; Афиша</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+<div th:insert="~{fragments/logout_fragments::header}"></div>
+<a data-th-href="@{/manager/events/create}">+ Создать событие</a>
+<h1>Список событий</h1>
+<table>
+    <form method="get" data-th-action="@{/manager/events/list}">
+        <label>
+            Название:<br>
+            <textarea name="title" data-th-text="${eventPayload?.title}"></textarea>
+        </label><br>
+        <button type="submit">Подобрать</button>
+    </form>
+    <thead>
+    <tr>
+        <th>#</th>
+        <th>Событие</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr data-th-each="event : ${events}">
+        <td data-th-text="${event.id}"></td>
+        <td>
+            <a data-th-href="@{/manager/events/{eventId}(eventId=${event.id})}"
+               data-th-text="${event.title}"></a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

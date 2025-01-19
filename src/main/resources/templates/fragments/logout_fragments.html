@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+<header th:fragment="header">
+  <nav>
+    <ul class="nav-list">
+      <li>
+        <a data-th-href="@{/user/start}" class="home-button">Главная</a>
+      </li>
+      <li class="spacer"></li> <!-- Добавлен спейсер -->
+      <li th:if="${balance != null}" class="balance-container">
+        <span class="balance-label">Баланс:</span>
+        <span class="balance-value" th:text="${balance}">0</span>
+      </li>
+      <li class="spacer"></li> <!-- Добавлен спейсер -->
+      <li class="logout-container">
+        <form action="/logout" method="post" class="logout-form">
+          <button type="submit" class="logout-button">Logout</button>
+        </form>
+      </li>
+    </ul>
+  </nav>
+</header>
+</body>
+</html>

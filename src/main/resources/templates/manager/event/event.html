@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title> &ndash; Сельмаг</title>
+    <style>
+        .ticket {
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            border: 1px solid #ccc;
+        }
+        .status-selling {
+            background-color: red;
+            color: white;
+        }
+        .status-booked {
+            background-color: yellow;
+            color: black;
+        }
+        .status-sold {
+            background-color: green;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div th:insert="~{fragments/logout_fragments::header}"></div>
+<a data-th-href="@{/manager/events/list}">&larr; К списку событий</a>
+<h1 data-th-text="${event.title}"></h1>
+<h2>
+    <span th:if="${event.dateTime lt #temporals.createNow()}" class="event-passed">
+        Событие прошло
+    </span>
+</h2>
+<ul>
+    <li><strong>ID</strong>: <span data-th-text="${event.id}"></span></li>
+    <li><strong>Название</strong>: <span data-th-text="${event.title}"></span></li>
+    <li><strong>Место</strong>: <span data-th-text="${event.place}"></span></li>
+    <li><strong>Время</strong>: <span data-th-text="${#temporals.format(event.dateTime, 'dd.MM.yyyy HH:mm')}"></span></li>
+    <li><strong>Тип</strong>: <span data-th-text="${event.type}"></span></li>
+</ul>
+
+<!-- Таблица билетов -->
+<table border="1">
+    <thead>
+    <tr>
+        <th>Ряд \ Место</th>
+        <th th:each="place : ${#numbers.sequence(1, 20)}" th:text="${place}"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="row : ${#numbers.sequence(1, 20)}">
+        <td th:text="${row}"></td>
+        <td th:each="place : ${#numbers.sequence(1, 20)}">
+            <!-- Поиск билета по ряду и месту -->
+            <div th:each="ticket : ${eventTickets}" th:if="${ticket.row == row and ticket.place == place}">
+                <div class="ticket"
+                     th:classappend="${ticket.status == 'продается'} ? 'status-selling' : (${ticket.status == 'забронирован'} ? 'status-booked' : 'status-sold')">
+                    <span></span>
+                </div>
+            </div>
+            <!-- Если билет не найден -->
+            <div th:if="${!#lists.isEmpty(eventTickets)}">
+                <div th:unless="${#lists.contains(eventTickets.![row + '-' + place], row + '-' + place)}">
+                    <div class="ticket"></div>
+                </div>
+            </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

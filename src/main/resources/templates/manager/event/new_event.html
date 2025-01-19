@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Новое событие &ndash; Афиша</title>
+    <style>
+        .hall.selected {
+            background-color: red;
+        }
+        table.hall {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th.hall, td.hall {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th.hall {
+            background-color: #f2f2f2;
+        }
+    </style>
+    <script>
+        // Функция для переключения состояния места
+        function toggleSeat(row, seat) {
+            const seatElement = document.getElementById(`seat-${row}-${seat}`);
+            seatElement.classList.toggle('selected');
+        }
+        // Функция для получения выбранных мест
+        function getSelectedSeats() {
+            const seats = [];
+            const selectedSeats = document.querySelectorAll('.seat.selected');
+            selectedSeats.forEach(seat => {
+                const row = seat.getAttribute('data-row');
+                const seatNumber = seat.getAttribute('data-seat');
+                seats.push(`${row},${seatNumber}`);
+            });
+            return seats;
+        }
+function submitForm() {
+   // Собираем данные из формы
+   const form = document.getElementById('eventForm');
+   const formData = new FormData(form);
+
+   // Добавляем выбранные места
+   const selectedSeats = getSelectedSeats();
+   selectedSeats.forEach((seat, index) => {
+       formData.append(`seats[${index}]`, seat);
+   });
+
+   // Преобразуем FormData в строку application/x-www-form-urlencoded
+   const params = new URLSearchParams(formData);
+
+   // Отправляем POST-запрос
+   fetch('http://localhost:8081/manager/events/create', {
+       method: 'POST',
+       headers: {
+           'Content-Type': 'application/x-www-form-urlencoded'
+       },
+       body: params.toString() // Преобразуем объект в строку запроса
+   })
+   .then(response => {
+       if (response.ok) {
+           // Если запрос успешный, перенаправляем пользователя
+           window.location.href = response.url;
+       } else if (response.status === 400) {
+           // Если есть ошибки, обрабатываем их
+           return response.json().then(data => {
+               displayErrors(data.errors); // Отображаем ошибки на странице
+           });
+       }
+   })
+   .catch(error => {
+   });
+}
+
+// Функция для отображения ошибок на странице
+function displayErrors(errors) {
+    alert(errors);
+   const errorContainer = document.getElementById('error-container');
+   errorContainer.innerHTML = ''; // Очищаем контейнер
+   errors.forEach(error => {
+       const errorElement = document.createElement('div');
+       errorElement.textContent = error;
+       errorElement.style.color = 'red'; // Красный цвет для ошибок
+       errorContainer.appendChild(errorElement);
+   });
+}
+    </script>
+</head>
+<body>
+<div th:insert="~{fragments/logout_fragments::header}"></div>
+<a data-th-href="@{/manager/events/list}">&larr; К списку событий</a>
+<h1>Новое событие</h1>
+<div id="error-container">
+    <!-- Здесь будут отображаться ошибки -->
+</div>
+<form id="eventForm">
+    <label>
+        Название:<br>
+        <input type="text" name="title">
+    </label><br>
+    <label>
+        Место:<br>
+        <textarea name="place"></textarea>
+    </label><br>
+    <label>
+        Дата:<br>
+        <input type="datetime-local" name="dateTime"/>
+    </label><br>
+    <label>
+        Цена:<br>
+        <textarea name="price"></textarea>
+    </label><br>
+    <label>
+        Тип события:<br>
+        <textarea name="type"></textarea>
+    </label><br>
+    <h3>Места:</h3>
+    <table class="hall">
+        <tr class="hall" th:each="row : ${#numbers.sequence(1, 5)}">
+            <td class="hall seat" th:each="seat : ${#numbers.sequence(1, 10)}" th:id="'seat-' + ${row} + '-' + ${seat}" th:onclick="'toggleSeat(' + ${row} + ', ' + ${seat} + ')'" th:data-row="${row}" th:data-seat="${seat}"></td>
+        </tr>
+    </table>
+    <button type="button" onclick="submitForm()">Создать</button>
+</form>
+</body>
+</html>

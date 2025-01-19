@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Пополнение баланса</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+<div th:insert="~{fragments/logout_fragments::header}"></div>
+<div data-th-if="${error}">
+    <h2>Укажите баланс</h2>
+    <ul>
+        <li data-th-text="${error}"></li>
+    </ul>
+</div>
+<form method="post" data-th-action="@{/client/balance}">
+    <label>
+        Сумма:<br>
+        <input type="text" name="balance" data-th-value="${payload?.balance}">
+    </label><br>
+    <button type="submit">Пополнить</button>
+</form>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Список билетов &ndash; Афиша</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+<div th:insert="~{fragments/logout_fragments::header}"></div>
+<h1>Список билетов</h1>
+<ul data-th-each="ticket : ${ticketList}">
+    <li>
+        <strong>ID:</strong> <span data-th-text="${ticket.id}"></span>
+    </li>
+    <li>
+        <strong>Event:</strong>
+        <a data-th-href="@{/client/events/{eventId}(eventId=${ticket.event.id})}" data-th-text="${ticket.event.title}"></a>
+    </li>
+    <li>
+        <strong>Статус</strong>
+        <div data-th-text="${ticket.status}"></div>
+        <form th:if="${ticket.status == 'забронирован'}" th:action="@{/client/tickets/cancel}" method="post">
+            <input type="hidden" th:name="ticketId" th:value="${ticket.id}" />
+            <!-- Добавьте другие поля ticket, которые нужно отправить -->
+            <button type="submit">Отменить</button>
+        </form>
+        <form th:if="${ticket.status == 'забронирован'}" th:action="@{/client/tickets/buy-ticket}" method="post">
+            <input type="hidden" th:name="ticketId" th:value="${ticket.id}" />
+            <!-- Добавьте другие поля ticket, которые нужно отправить -->
+            <button type="submit">Выкупить</button>
+        </form>
+    </li>
+    <li>-----------------------------</li> <!-- Разделитель между билетами -->
+</ul>
+</table>
+</body>
+</html>
