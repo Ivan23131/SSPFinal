@@ -18,6 +18,11 @@
         <span class="balance-value" th:text="${balance}">0</span>
       </li>
       <li class="spacer"></li> <!-- Добавлен спейсер -->
+      <li th:if="${credit != null}" class="balance-container">
+        <span class="balance-label">Кредит:</span>
+        <span class="balance-value" th:text="${credit}"></span>
+      </li>
+      <li class="spacer"></li> <!-- Добавлен спейсер -->
       <li class="logout-container">
         <form action="/logout" method="post" class="logout-form">
           <button type="submit" class="logout-button">Logout</button>

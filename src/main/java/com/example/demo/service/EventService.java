@@ -24,6 +24,8 @@ public class EventService {
     private final TicketRepository ticketRepository;
     private final AppUserRepository appUserRepository;
 
+
+    @Transactional
     public Iterable<Event> findAllCurrentEvent(String filter) {
         LocalDateTime now = LocalDateTime.now();
         if (filter != null && !filter.isBlank()) {
@@ -44,6 +46,7 @@ public class EventService {
         return event;
     }
 
+    @Transactional
     public Optional<Event> findEvent(int eventId) {
         return this.eventRepository.findById(eventId);
     }

@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>Добавить пользователя</title>
+  <link rel="stylesheet" th:href="@{/styles.css}">
 </head>
 <body>
-<div th:insert="~{fragments/logout_fragments::header}"></div>
+<div th:insert="~{fragments/header_withot_logout::header}"></div>
 <h1>Добавить пользователя</h1>
-
 <!-- Форма для добавления пользователя -->
 <form action="/user/add-user" method="post">
   <label for="username">Имя пользователя:</label>

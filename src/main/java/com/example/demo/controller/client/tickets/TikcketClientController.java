@@ -2,6 +2,7 @@ package com.example.demo.controller.client.tickets;
 
 
 import com.example.demo.entity.AppUser;
+import com.example.demo.entity.Event;
 import com.example.demo.service.AppUserService;
 import com.example.demo.service.EventService;
 import com.example.demo.service.TicketService;
@@ -11,6 +12,9 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @RequestMapping("client")
@@ -24,7 +28,13 @@ public class TikcketClientController {
     @GetMapping("tickets/list")
     public String getActiveClientTickets(@AuthenticationPrincipal User user, Model model){
         AppUser client = userService.getUserByUsername(user.getUsername());
+        for (Event event:eventService.findAllCurrentEvent("")){
+            if (Duration.between(LocalDateTime.now(), event.getDateTime()).toHours() < 24) {
+                ticketService.updateBookedTicketsByEventId(event.getId());
+            }
+        }
         model.addAttribute("ticketList", ticketService.getActiveTicketsByUsername(client.getUsername()));
+        model.addAttribute("balance", client.getBalance());
         return "client/ticket/ticket_list";
     }
 
@@ -32,13 +42,11 @@ public class TikcketClientController {
     public String buyTicket(@RequestParam("price") Integer ticketPrice, @RequestParam("ticketId") String status, @RequestParam("ticketId") Integer ticketId, @AuthenticationPrincipal User user, Model model){
         AppUser client = userService.getUserByUsername(user.getUsername());
         if (ticketPrice > userService.getUserByUsername(user.getUsername()).getBalance()){
-            System.out.println("qecwecwec");
             model.addAttribute("error","не хватает баланса");
             model.addAttribute("balance", userService.getUserByUsername(user.getUsername()).getBalance());
             model.addAttribute("ticketList", ticketService.getActiveTicketsByUsername(client.getUsername()));
             return "client/ticket/ticket_list";
         }
-        System.out.println("wecwecwe");
         ticketService.buyBookedTicket(ticketId, user.getUsername());
         model.addAttribute("balance", userService.getUserByUsername(user.getUsername()).getBalance());
         model.addAttribute("ticketList", ticketService.getActiveTicketsByUsername(client.getUsername()));
@@ -50,6 +58,7 @@ public class TikcketClientController {
     public String buyBookedTicket(@RequestParam("ticketId") Integer ticketId, @AuthenticationPrincipal User user, Model model){
         AppUser client = userService.getUserByUsername(user.getUsername());
         ticketService.cancelTicket(ticketId, user.getUsername());
+        model.addAttribute("balance", userService.getUserByUsername(user.getUsername()).getBalance());
         model.addAttribute("ticketList", ticketService.getActiveTicketsByUsername(client.getUsername()));
         return "client/ticket/ticket_list";
     }

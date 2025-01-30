@@ -1,8 +1,7 @@
 package com.example.demo.controller.client.balance;
 
 
-import com.example.demo.controller.client.balance.balance.BalancePayload;
-import com.example.demo.controller.manager.payload.FindEventPayload;
+import com.example.demo.controller.client.credit.payload.CreditPayload;
 import com.example.demo.service.AppUserService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,18 +26,9 @@ public class BalanceController {
     }
 
     @PostMapping("balance")
-    public String getEventsList(Model model, BalancePayload payload, @AuthenticationPrincipal User user) {
-        try {
-            Integer balance = Integer.parseInt(payload.balance());
-            if (balance < 0){
-                throw new Exception();
-            }
-            userService.depositBalance(user.getUsername(), balance);
-        }catch (Exception e){
-            model.addAttribute("error","Укажите цену");
-            model.addAttribute("balance", userService.getUserByUsername(user.getUsername()).getBalance());
-            return "client/balance/balance";
-        }
+    public String getEventsList(Model model, CreditPayload payload, @AuthenticationPrincipal User user) {
+        Integer balance = Integer.parseInt(payload.balance());
+        userService.depositBalance(user.getUsername(), balance);
         return "redirect:/user/start";
     }
 }

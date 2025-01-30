@@ -13,12 +13,42 @@
         <li data-th-text="${error}"></li>
     </ul>
 </div>
-<form method="post" data-th-action="@{/client/balance}">
+
+<!-- Форма для пополнения баланса -->
+<form id="balanceForm" method="post" data-th-action="@{/client/balance}">
     <label>
         Сумма:<br>
-        <input type="text" name="balance" data-th-value="${payload?.balance}">
+        <input type="text" id="balanceInput" name="balance" data-th-value="${payload?.balance}">
     </label><br>
     <button type="submit">Пополнить</button>
 </form>
+
+<!-- Блок для отображения ошибки -->
+<div id="errorMessage" style="color: red; display: none;">
+    Пожалуйста, введите число больше 0.
+</div>
+
+<script>
+    // Функция для проверки введенного значения
+    function validateBalance(event) {
+        // Получаем значение из поля ввода
+        const balanceInput = document.getElementById('balanceInput');
+        const value = parseFloat(balanceInput.value);
+
+        // Проверяем, является ли значение числом и больше ли оно 0
+        if (isNaN(value) || value <= 0) {
+            // Показываем сообщение об ошибке
+            document.getElementById('errorMessage').style.display = 'block';
+            // Отменяем отправку формы
+            event.preventDefault();
+        } else {
+            // Скрываем сообщение об ошибке, если оно было показано ранее
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+    }
+
+    // Назначаем функцию validateBalance на событие отправки формы
+    document.getElementById('balanceForm').addEventListener('submit', validateBalance);
+</script>
 </body>
 </html>

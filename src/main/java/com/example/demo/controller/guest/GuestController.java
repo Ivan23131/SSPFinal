@@ -65,6 +65,8 @@ public class GuestController {
         AppUser user = new AppUser();
         user.setUsername(username);
         user.setPasswordHash("{noop}" + passwordHash);
+        user.setBalance(0);
+        user.setCredit(0);
 
         // Находим или создаем роль
         Authority userAuthority;

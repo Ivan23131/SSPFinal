@@ -5,8 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -29,9 +31,14 @@ public class AppUser {
     @Column(name = "c_balance", nullable = false)
     private Integer balance;
 
+
+    @Column(name = "c_credit")
+    private Integer credit;
+
     @ManyToMany
     @JoinTable(name = "t_user_authority",
             joinColumns = @JoinColumn(name = "id_user"),
             inverseJoinColumns = @JoinColumn(name = "id_authority"))
     private List<Authority> authorities = new LinkedList<>();
+
 }

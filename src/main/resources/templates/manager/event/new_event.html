@@ -75,8 +75,7 @@ function submitForm() {
 }
 
 // Функция для отображения ошибок на странице
-function displayErrors(errors) {
-    alert(errors);
+function displayErrors(errors) {ы
    const errorContainer = document.getElementById('error-container');
    errorContainer.innerHTML = ''; // Очищаем контейнер
    errors.forEach(error => {
@@ -87,6 +86,7 @@ function displayErrors(errors) {
    });
 }
     </script>
+    <link rel="stylesheet" th:href="@{/styles.css}">
 </head>
 <body>
 <div th:insert="~{fragments/logout_fragments::header}"></div>

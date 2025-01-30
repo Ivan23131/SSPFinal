@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+<div th:insert="~{fragments/logout_fragments::header}"></div>
+<h2>История просмотренных событий</h2>
+<tr data-th-each="event : ${events}">
+    <td data-th-text="${event.id}"></td>
+    <td>
+        <a data-th-href="@{/client/events/{eventId}(eventId=${event.id})}"
+           data-th-text="${event.title}"></a>
+    </td>
+</tr>
+</body>
+</html>

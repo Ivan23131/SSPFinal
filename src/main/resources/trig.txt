@@ -1,0 +1,14 @@
+CREATE OR REPLACE FUNCTION update_ticket_status()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.c_user IS NULL THEN
+        NEW.c_status := 'продается';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_ticket_status
+BEFORE INSERT OR UPDATE ON t_tickets
+FOR EACH ROW
+EXECUTE FUNCTION update_ticket_status();

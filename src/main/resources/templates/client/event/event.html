@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8">
-  <title> &ndash; Сельмаг</title>
+  <title> Тикмак </title>
   <style>
     .status-sold-or-booked {
 background-color: black; /* Черный цвет */
@@ -43,31 +43,35 @@ pointer-events: none; /* Отключаем клики */
     }
     // Вставляем eventId в JavaScript
     const eventId = /*[[${eventId}]]*/ 0; // Thymeleaf вставляет значение eventId
+    const timeEventFlag = /*[[${timeEventFlag}]]*/ 0; // Thymeleaf вставляет значение eventId
 
     // Функция для обработки клика на место
 function handleTicketClick(event) {
     const ticket = event.target.closest('.ticket'); // Находим ближайший элемент с классом .ticket
     ticketPrice = parseInt(ticket.getAttribute('data-price'), 10);
-    if (!ticket) return; // Если элемент не найден, прекращаем выполнение
-     // Получаем цену билета
-    if (isNaN(ticketPrice)) {
-        console.error('Цена билета не определена:', ticket);
-        return; // Прекращаем выполнение функции, если цена не определена
-    }
-
-    if (ticket.classList.contains('status-selling')) {
-        ticket.classList.remove('status-selling');
-        ticket.classList.add('status-booked');
-    } else if (ticket.classList.contains('status-booked')) {
-        ticket.classList.remove('status-booked');
-        ticket.classList.add('status-sold');
-        updateTotalPrice(ticketPrice); // Увеличиваем общую цену
-    } else if (ticket.classList.contains('status-sold')) {
-        ticket.classList.remove('status-sold');
-        ticket.classList.add('status-selling');
-        updateTotalPrice(-ticketPrice); // Уменьшаем общую цену
-    } else {
-        console.warn('Неизвестный статус билета:', ticket);
+    if (timeEventFlag == 1){
+      if (ticket.classList.contains('status-selling')) {
+          ticket.classList.remove('status-selling');
+          ticket.classList.add('status-sold');
+          updateTotalPrice(ticketPrice); // Увеличиваем общую цену
+      } else if (ticket.classList.contains('status-sold')) {
+          ticket.classList.remove('status-sold');
+          ticket.classList.add('status-selling');
+          updateTotalPrice(-ticketPrice); // Уменьшаем общую цену
+      }
+    }else{
+      if (ticket.classList.contains('status-selling')) {
+          ticket.classList.remove('status-selling');
+          ticket.classList.add('status-booked');
+      } else if (ticket.classList.contains('status-booked')) {
+          ticket.classList.remove('status-booked');
+          ticket.classList.add('status-sold');
+          updateTotalPrice(ticketPrice); // Увеличиваем общую цену
+      } else if (ticket.classList.contains('status-sold')) {
+          ticket.classList.remove('status-sold');
+          ticket.classList.add('status-selling');
+          updateTotalPrice(-ticketPrice); // Уменьшаем общую цену
+      }
     }
 }
 
@@ -201,6 +205,6 @@ function displayErrors(errors) {
 <div id="total-price-container">
   <strong>Общая цена:</strong> <span id="total-price">0</span> руб.
 </div>
-<button onclick="submitForm()">Купить</button>
+<button onclick="submitForm()">Купить/забронировать</button>
 </body>
 </html>

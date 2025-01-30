@@ -3,6 +3,9 @@
 <head>
 </head>
 <body>
+<div th:if="${param.expired != null}" class="alert alert-warning">
+    Ваша сессия истекла. Пожалуйста, войдите снова.
+</div>
 <div th:if="${param.error}">
     Ivalid username or password.
 </div>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+<header th:fragment="header">
+    <nav>
+        <ul class="nav-list">
+            <li>
+                <a data-th-href="@{/login}" class="home-button">Главная</a>
+            </li>
+        </ul>
+    </nav>
+</header>
+</body>
+</html>

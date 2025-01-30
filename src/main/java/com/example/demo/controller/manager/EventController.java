@@ -25,6 +25,7 @@ public class EventController {
 
     @ModelAttribute("event")
     public Event event(@PathVariable("eventId") int eventId) {
+        ticketService.updateBookedTicketsByEventId(eventId);
         return this.eventService.findEvent(eventId)
                 .orElseThrow(() -> new NoSuchElementException("catalogue.errors.product.not_found"));
     }

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <title>Пополнение баланса</title>
+  <link rel="stylesheet" th:href="@{/styles.css}">
+  <script>
+    function validateInput(event) {
+        const balanceInput = document.querySelector('input[name="balance"]');
+        const balanceValue = balanceInput.value;
+        if (isNaN(parseFloat(balanceValue)) || balanceValue <= 0) {
+            event.preventDefault();
+            alert('Please enter a valid positive number.');
+        }
+    }
+  </script>
+</head>
+<body>
+<div th:insert="~{fragments/logout_fragments::header}"></div>
+<div data-th-if="${error}">
+  <h2>Укажите сумму кредита</h2>
+  <ul>
+    <li data-th-text="${error}"></li>
+  </ul>
+</div>
+<div data-th-if="${error1}">
+  <h2>Укажите сумму меньше</h2>
+  <ul>
+    <li data-th-text="${error1}"></li>
+  </ul>
+</div>
+<form method="post" data-th-action="@{/client/credit}" onsubmit="validateInput(event)">
+  <label>
+    Сумма:<br>
+    <input type="text" name="balance" data-th-value="${payload?.balance}">
+  </label><br>
+  <button type="submit">занять</button>
+</form>
+
+<form method="post" data-th-action="@{/client/credit/repay}" onsubmit="validateInput(event)">
+  <label>
+    Сумма:<br>
+    <input type="text" name="balance" data-th-value="${payload?.balance}">
+  </label><br>
+  <button type="submit">Погасить</button>
+</form>
+</body>
+</html>

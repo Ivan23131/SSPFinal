@@ -26,6 +26,12 @@ public interface TicketRepository extends CrudRepository<Ticket, Integer> {
     List<Ticket> findActiveTicketsByUsername(@Param("username") String username,
                                              @Param("currentDateTime") LocalDateTime currentDateTime);
 
+    @Query("SELECT t FROM Ticket t " +
+            "JOIN t.event e " +
+            "JOIN t.client u " +
+            "WHERE u.username = :username")
+    List<Ticket> findALLTicketsByUsername(@Param("username") String username);
+
 
 
     @Modifying
