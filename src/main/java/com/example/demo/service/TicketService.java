@@ -71,7 +71,7 @@ public class TicketService {
     @Transactional
     public boolean IsTicketsWhereUpdated(String username, List<ParsedTicket> updateTickets, Integer eventId){
         AppUser client = appUserRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("нет такого юзера по имени"));
-
+        entityManager.createNativeQuery("LOCK TABLE \"" + "t_tickets" + "\" IN EXCLUSIVE MODE")
         boolean isTicketsWhereUpdated = false;
         for (ParsedTicket ticket: updateTickets){
             if (!ticketRepository.findByEventIdAndRowAndPlace(eventId, ticket.getRow(), ticket.getPlace()).orElseThrow(() -> new RuntimeException("в проверке билетов что их не успели поменять нет такого билета")).getStatus().equals("продается")){
